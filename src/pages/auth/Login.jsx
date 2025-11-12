@@ -1,16 +1,17 @@
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
+import LoginForm from "../../components/forms/LoginForm";
 
 const Login = () => {
   return (
-    <div className="flex flex-col min-h-screen bg-green-50">
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-      <main className="flex-grow flex items-center justify-center p-4">
-        <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-          <h1 className="text-3xl font-bold text-green-700 mb-4 text-center">
-            Login Page
-          </h1>
-          <p className="text-center">Login form will go here</p>
+      <main className="flex-grow flex justify-center items-center bg-gray-50">
+        <div className="bg-white shadow-md rounded-xl p-8 w-full max-w-md border border-green-100">
+          <h2 className="text-2xl font-semibold text-center text-green-700 mb-6">
+            Welcome Back 👋
+          </h2>
+          <LoginForm />
         </div>
       </main>
       <Footer />
