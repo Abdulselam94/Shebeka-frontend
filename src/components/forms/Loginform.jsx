@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -11,71 +10,91 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-green-900 to-black p-6">
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="w-full max-w-md backdrop-blur-lg bg-white/10 border border-white/20 rounded-2xl p-8 shadow-2xl text-white"
-      >
-        <h2 className="text-3xl font-bold text-center mb-6 bg-gradient-to-r from-green-400 to-emerald-300 bg-clip-text text-transparent">
-          Welcome Back 👋
-        </h2>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm mb-1 text-gray-300">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder-gray-400 text-white"
-              placeholder="Enter your email"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm mb-1 text-gray-300">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder-gray-400 text-white"
-              placeholder="••••••••"
-            />
-          </div>
-
-          <div className="flex items-center justify-between text-sm text-gray-400">
-            <label className="flex items-center gap-2">
-              <input type="checkbox" className="accent-green-400" /> Remember me
-            </label>
-            <a href="#" className="hover:text-green-400 transition">
-              Forgot password?
-            </a>
-          </div>
-
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.97 }}
-            type="submit"
-            className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-400 rounded-lg text-white font-semibold tracking-wide shadow-lg hover:shadow-green-500/30 transition-all duration-300"
+    <div className="w-full max-w-md bg-white border border-gray-200 rounded-xl p-8 shadow-lg">
+      <div className="text-center mb-8">
+        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg
+            className="w-8 h-8 text-blue-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            Log In
-          </motion.button>
-        </form>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+            />
+          </svg>
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h2>
+        <p className="text-gray-600">Sign in to your career dashboard</p>
+      </div>
 
-        <p className="text-center text-gray-400 text-sm mt-6">
-          Don’t have an account?{" "}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Email Address
+          </label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 text-gray-900 transition-colors"
+            placeholder="your.email@example.com"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Password
+          </label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 text-gray-900 transition-colors"
+            placeholder="Enter your password"
+          />
+        </div>
+
+        <div className="flex items-center justify-between text-sm">
+          <label className="flex items-center gap-2 text-gray-600 cursor-pointer">
+            <input
+              type="checkbox"
+              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+            />
+            Remember me
+          </label>
           <a
             href="#"
-            className="text-green-400 hover:text-green-300 font-semibold"
+            className="text-blue-600 hover:text-blue-500 font-medium transition-colors"
           >
-            Sign up
+            Forgot password?
+          </a>
+        </div>
+
+        <button
+          type="submit"
+          className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
+        >
+          Sign In
+        </button>
+      </form>
+
+      <div className="mt-8 pt-6 border-t border-gray-200">
+        <p className="text-center text-gray-600 text-sm">
+          Don't have an account?{" "}
+          <a
+            href="#"
+            className="text-blue-600 hover:text-blue-500 font-semibold transition-colors"
+          >
+            Create account
           </a>
         </p>
-      </motion.div>
+      </div>
     </div>
   );
 };
