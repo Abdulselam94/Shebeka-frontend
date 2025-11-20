@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useAuth } from "../../context/AuthContext";
+import { useState, useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import { register as registerApi } from "../../api/auth";
 import { useNavigate, Link } from "react-router-dom";
 
@@ -9,12 +9,12 @@ const RegisterForm = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    userType: "jobseeker", // jobseeker or employer
+    userType: "jobseeker",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
-  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -28,6 +28,7 @@ const RegisterForm = () => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setSuccess(false);
 
     // Validation
     if (formData.password !== formData.confirmPassword) {
@@ -45,7 +46,7 @@ const RegisterForm = () => {
     try {
       console.log("🔄 Registering user:", formData);
 
-      // Call register API
+      // Register the user
       const response = await registerApi({
         name: formData.name,
         email: formData.email,
@@ -55,11 +56,13 @@ const RegisterForm = () => {
 
       console.log("✅ Registration successful:", response);
 
-      // Auto-login after registration
-      login(response.token);
+      // Show success message
+      setSuccess(true);
 
-      // Redirect to dashboard
-      navigate("/dashboard");
+      // Redirect to login page after 2 seconds
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
     } catch (err) {
       console.log("❌ Registration error:", err);
       setError(err.message || "Registration failed");
@@ -92,6 +95,13 @@ const RegisterForm = () => {
         <p className="text-gray-600">Join our job portal today</p>
       </div>
 
+      {/* Success Message */}
+      {success && (
+        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-600 text-sm text-center">
+          ✅ Registration successful! Redirecting to login...
+        </div>
+      )}
+
       {/* Error Message */}
       {error && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm text-center">
@@ -111,7 +121,7 @@ const RegisterForm = () => {
             value={formData.name}
             onChange={handleChange}
             required
-            disabled={loading}
+            disabled={loading || success}
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 text-gray-900 transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
             placeholder="Enter your full name"
           />
@@ -128,7 +138,7 @@ const RegisterForm = () => {
             value={formData.email}
             onChange={handleChange}
             required
-            disabled={loading}
+            disabled={loading || success}
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 text-gray-900 transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
             placeholder="your.email@example.com"
           />
@@ -140,24 +150,38 @@ const RegisterForm = () => {
             I am a
           </label>
           <div className="grid grid-cols-2 gap-4">
-            <label className="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+            <label
+              className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${
+                formData.userType === "jobseeker"
+                  ? "border-blue-500 bg-blue-50"
+                  : "border-gray-300 hover:bg-gray-50"
+              } ${loading || success ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
               <input
                 type="radio"
                 name="userType"
                 value="jobseeker"
                 checked={formData.userType === "jobseeker"}
                 onChange={handleChange}
+                disabled={loading || success}
                 className="text-blue-600 focus:ring-blue-500"
               />
               <span className="ml-2 text-sm">Job Seeker</span>
             </label>
-            <label className="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+            <label
+              className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${
+                formData.userType === "employer"
+                  ? "border-blue-500 bg-blue-50"
+                  : "border-gray-300 hover:bg-gray-50"
+              } ${loading || success ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
               <input
                 type="radio"
                 name="userType"
                 value="employer"
                 checked={formData.userType === "employer"}
                 onChange={handleChange}
+                disabled={loading || success}
                 className="text-blue-600 focus:ring-blue-500"
               />
               <span className="ml-2 text-sm">Employer</span>
@@ -176,7 +200,7 @@ const RegisterForm = () => {
             value={formData.password}
             onChange={handleChange}
             required
-            disabled={loading}
+            disabled={loading || success}
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 text-gray-900 transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
             placeholder="At least 6 characters"
           />
@@ -193,7 +217,7 @@ const RegisterForm = () => {
             value={formData.confirmPassword}
             onChange={handleChange}
             required
-            disabled={loading}
+            disabled={loading || success}
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 text-gray-900 transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
             placeholder="Confirm your password"
           />
@@ -201,7 +225,7 @@ const RegisterForm = () => {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || success}
           className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 rounded-lg text-white font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 disabled:cursor-not-allowed"
         >
           {loading ? (
@@ -228,6 +252,8 @@ const RegisterForm = () => {
               </svg>
               Creating Account...
             </div>
+          ) : success ? (
+            "✅ Success!"
           ) : (
             "Create Account"
           )}

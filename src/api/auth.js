@@ -1,5 +1,5 @@
 // api/auth.js
-const API_BASE_URL = "http://localhost:5000/api"; // Adjust to your backend URL
+const API_BASE_URL = "http://localhost:5000/api";
 
 export const login = async (email, password) => {
   const response = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -39,12 +39,18 @@ export const register = async (userData) => {
     throw new Error(data.message || "Registration failed");
   }
 
-  // Handle different response formats
-  if (data.token) {
+  // 👇 FIX: Accept your backend's response format
+  if (data.message && data.user) {
+    // Your backend returns: {message: 'User registered successfully', user: {...}}
+    console.log("✅ Registration successful - user created");
+    return data; // Return the data as-is
+  } else if (data.token) {
+    // Alternative format: { token: "...", user: {...} }
     return data;
   } else if (data.data && data.data.token) {
+    // Another alternative format
     return data.data;
   } else {
-    throw new Error("Invalid response format");
+    throw new Error("Invalid response format from server");
   }
 };
