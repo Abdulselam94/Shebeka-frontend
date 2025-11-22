@@ -5,6 +5,7 @@ import Register from "./pages/auth/Register";
 import ApplicantDashboard from "./pages/applicant/Dashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import ApplicantRoute from "./routes/ApplicationRoute";
+import JobList from "./pages/applicant/JobList";
 
 function App() {
   return (
@@ -29,6 +30,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ApplicantDashboard /> {/* Use ApplicantDashboard for now */}
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/jobs"
+          element={
+            <ProtectedRoute>
+              <JobList />
             </ProtectedRoute>
           }
         />
