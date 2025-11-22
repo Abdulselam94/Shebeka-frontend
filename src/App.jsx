@@ -7,6 +7,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import ApplicantRoute from "./routes/ApplicationRoute";
 import JobList from "./pages/applicant/JobList";
 import JobDetail from "./pages/applicant/JobDetail";
+import Profile from "./pages/applicant/Profile";
 
 function App() {
   return (
@@ -63,6 +64,7 @@ function App() {
         <Route
           path="/applicant/profile"
           element={
+            // Add this route
             <ApplicantRoute>
               <Profile />
             </ApplicantRoute>

@@ -10,10 +10,6 @@ const ApplicantRoute = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (!hasRole(ROLES.APPLICANT)) {
-    return <Navigate to="/unauthorized" replace />;
-  }
-
   return children;
 };
 
