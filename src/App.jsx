@@ -6,6 +6,7 @@ import ApplicantDashboard from "./pages/applicant/Dashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import ApplicantRoute from "./routes/ApplicationRoute";
 import JobList from "./pages/applicant/JobList";
+import JobDetail from "./pages/applicant/JobDetail";
 
 function App() {
   return (
@@ -38,6 +39,14 @@ function App() {
           element={
             <ProtectedRoute>
               <JobList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/jobs/:id"
+          element={
+            <ProtectedRoute>
+              <JobDetail />
             </ProtectedRoute>
           }
         />
