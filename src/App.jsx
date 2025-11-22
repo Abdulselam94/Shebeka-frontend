@@ -60,6 +60,14 @@ function App() {
             </ApplicantRoute>
           }
         />
+        <Route
+          path="/applicant/profile"
+          element={
+            <ApplicantRoute>
+              <Profile />
+            </ApplicantRoute>
+          }
+        />
       </Routes>
     </Router>
   );
