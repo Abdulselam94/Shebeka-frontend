@@ -11,6 +11,8 @@ const ProfileForm = ({ userData, onSubmit, loading = false }) => {
     experience: userData?.experience || [],
     education: userData?.education || [],
     resume: userData?.resume || null,
+    resumeUrl: userData?.resumeUrl || null,
+    resumeName: userData?.resumeName || null,
     ...userData,
   });
 
@@ -31,6 +33,8 @@ const ProfileForm = ({ userData, onSubmit, loading = false }) => {
     endDate: "",
     current: false,
   });
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -103,6 +107,36 @@ const ProfileForm = ({ userData, onSubmit, loading = false }) => {
       ...prev,
       education: prev.education.filter((edu) => edu.id !== id),
     }));
+  };
+
+  // Add this function for file upload
+  const handleFileUpload = async (file) => {
+    setUploading(true);
+    setUploadProgress(0);
+
+    try {
+      // Simulate file upload - replace with actual API call
+      for (let progress = 0; progress <= 100; progress += 10) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        setUploadProgress(progress);
+      }
+
+      // In real implementation, you would get the file URL from your backend
+      const fakeFileUrl = `https://example.com/resumes/${Date.now()}_${
+        file.name
+      }`;
+
+      setFormData((prev) => ({
+        ...prev,
+        resumeUrl: fakeFileUrl,
+        resumeName: file.name,
+      }));
+    } catch (error) {
+      console.error("Upload failed:", error);
+    } finally {
+      setUploading(false);
+      setUploadProgress(0);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -234,6 +268,111 @@ const ProfileForm = ({ userData, onSubmit, loading = false }) => {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Resume Upload Section - ADDED HERE */}
+      <div className="bg-white rounded-lg shadow-sm border p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Resume</h3>
+
+        {formData.resumeUrl ? (
+          <div className="flex items-center justify-between p-4 border border-green-200 bg-green-50 rounded-lg">
+            <div className="flex items-center">
+              <svg
+                className="w-8 h-8 text-green-600 mr-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              <div>
+                <p className="font-medium text-green-800">
+                  {formData.resumeName || "Resume"}
+                </p>
+                <p className="text-sm text-green-600">Uploaded successfully</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                setFormData((prev) => ({
+                  ...prev,
+                  resumeUrl: null,
+                  resumeName: null,
+                }))
+              }
+              className="text-red-600 hover:text-red-800 text-sm font-medium"
+            >
+              Remove
+            </button>
+          </div>
+        ) : (
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+            <svg
+              className="w-12 h-12 text-gray-400 mx-auto mb-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+              />
+            </svg>
+
+            {uploading ? (
+              <div className="space-y-3">
+                <p className="text-sm text-gray-600">Uploading resume...</p>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-blue-600 h-2 rounded-full transition-all"
+                    style={{ width: `${uploadProgress}%` }}
+                  ></div>
+                </div>
+                <p className="text-xs text-gray-500">{uploadProgress}%</p>
+              </div>
+            ) : (
+              <>
+                <p className="text-sm text-gray-600 mb-2">
+                  Upload your resume (PDF, DOC, DOCX) - Max 5MB
+                </p>
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      if (file.size > 5 * 1024 * 1024) {
+                        // 5MB limit
+                        alert("File size must be less than 5MB");
+                        return;
+                      }
+                      handleFileUpload(file);
+                    }
+                  }}
+                  className="hidden"
+                  id="resume-upload"
+                />
+                <label
+                  htmlFor="resume-upload"
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer"
+                >
+                  Choose File
+                </label>
+                <p className="text-xs text-gray-500 mt-2">
+                  This is required to apply for jobs
+                </p>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Experience */}

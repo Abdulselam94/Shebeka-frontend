@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { applyForJob } from "../../api/applications";
+import { applyForJob } from "../../api/application";
 
 const JobDetail = () => {
   const { id } = useParams();
