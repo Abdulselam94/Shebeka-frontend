@@ -8,16 +8,14 @@ import ApplicantRoute from "./routes/ApplicationRoute";
 import JobList from "./pages/applicant/JobList";
 import JobDetail from "./pages/applicant/JobDetail";
 import Profile from "./pages/applicant/Profile";
+import Home from "./pages/Home";
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route
-          path="/"
-          element={<div className="p-8">Home Page - Coming Soon</div>}
-        />
+        <Route path="/" element={<Home />} />
 
         {/* Fallback */}
         <Route
