@@ -68,6 +68,14 @@ function App() {
             </ApplicantRoute>
           }
         />
+        <Route
+          path="/employer/dashboard"
+          element={
+            <EmployerRoute>
+              <EmployerDashboard />
+            </EmployerRoute>
+          }
+        />
       </Routes>
     </Router>
   );
