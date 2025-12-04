@@ -9,6 +9,10 @@ import JobList from "./pages/applicant/JobList";
 import JobDetail from "./pages/applicant/JobDetail";
 import Profile from "./pages/applicant/Profile";
 import Home from "./pages/Home";
+import EmployerDashboard from "./pages/employer/Dashboard";
+import EmployerRoute from "./routes/EmployerRoute";
+import PostJob from "./pages/employer/PostJob";
+im;
 
 function App() {
   return (
@@ -73,6 +77,14 @@ function App() {
           element={
             <EmployerRoute>
               <EmployerDashboard />
+            </EmployerRoute>
+          }
+        />
+        <Route
+          path="/employer/post-job"
+          element={
+            <EmployerRoute>
+              <PostJob />
             </EmployerRoute>
           }
         />
