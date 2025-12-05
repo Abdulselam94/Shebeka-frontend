@@ -12,7 +12,6 @@ import Home from "./pages/Home";
 import EmployerDashboard from "./pages/employer/Dashboard";
 import EmployerRoute from "./routes/EmployerRoute";
 import PostJob from "./pages/employer/PostJob";
-im;
 
 function App() {
   return (
@@ -33,7 +32,7 @@ function App() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <ApplicantDashboard /> {/* Use ApplicantDashboard for now */}
+              <EmployerDashboard /> {/* Use ApplicantDashboard for now */}
             </ProtectedRoute>
           }
         />
