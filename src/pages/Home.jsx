@@ -401,7 +401,14 @@ const Home = () => {
       </section>
       <Footer />
       {/* Footer CTA */}
-      <section className="bg-gray-900 text-white py-12">
+    </div>
+  );
+};
+
+export default Home;
+
+/**  
+  <section className="bg-gray-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-6 md:mb-0">
@@ -422,9 +429,5 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </section>
-    </div>
-  );
-};
-
-export default Home;
+      </section> 
+ */
