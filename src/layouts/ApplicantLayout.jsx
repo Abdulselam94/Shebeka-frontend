@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import DarkModeToggle from "../components/common/DarkModeToggle";
 
 const ApplicantLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -31,11 +32,11 @@ const ApplicantLayout = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
             {/* Sidebar */}
             <aside
                 className={`${sidebarOpen ? "w-64" : "w-20"
-                    } bg-white border-r border-gray-200 transition-all duration-300 flex flex-col`}
+                    } bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 flex flex-col`}
             >
                 {/* Logo */}
                 <div className="h-16 flex items-center justify-between px-4 border-b">
@@ -61,8 +62,8 @@ const ApplicantLayout = () => {
                                 key={item.path}
                                 to={item.path}
                                 className={`flex items-center px-3 py-2 rounded-lg transition-colors ${isActive
-                                    ? "bg-blue-50 text-blue-600"
-                                    : "text-gray-700 hover:bg-gray-100"
+                                        ? "bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-400"
+                                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                                     }`}
                             >
                                 <span className="text-xl">{item.icon}</span>
@@ -73,15 +74,15 @@ const ApplicantLayout = () => {
                 </nav>
 
                 {/* User Menu */}
-                <div className="border-t p-4">
+                <div className="border-t dark:border-gray-700 p-4">
                     <div className="flex items-center">
                         <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
                             {user?.name?.[0] || "U"}
                         </div>
                         {sidebarOpen && (
                             <div className="ml-3 flex-1">
-                                <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-                                <p className="text-xs text-gray-500">{user?.email}</p>
+                                <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.name}</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
                             </div>
                         )}
                     </div>
@@ -99,7 +100,7 @@ const ApplicantLayout = () => {
             {/* Main Content */}
             <div className="flex-1 flex flex-col">
                 {/* Top Header */}
-                <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+                <header className="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6">
                     {/* Search Bar */}
                     <form onSubmit={handleSearch} className="flex-1 max-w-xl">
                         <div className="relative">
@@ -108,14 +109,15 @@ const ApplicantLayout = () => {
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Search jobs by title, company, or keywords..."
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                             />
                             <span className="absolute left-3 top-2.5 text-gray-400">🔍</span>
                         </div>
                     </form>
 
                     <div className="flex items-center space-x-4 ml-6">
-                        <button className="p-2 rounded-lg hover:bg-gray-100 relative">
+                        <DarkModeToggle />
+                        <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 relative">
                             🔔
                             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                         </button>

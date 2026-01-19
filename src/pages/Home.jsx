@@ -103,7 +103,7 @@ const Home = () => {
     <div className="min-h-screen">
       <Navbar />
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+      <section className="bg-gradient-to-r from-blue-600 to-blue-800 dark:from-blue-700 dark:to-blue-900 text-white">
         <div className="max-w-7xl mx-auto px-6 py-20 md:py-28">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
@@ -117,7 +117,7 @@ const Home = () => {
             {/* Search Bar */}
             <form
               onSubmit={handleSearch}
-              className="bg-white rounded-xl p-2 shadow-2xl max-w-2xl mx-auto"
+              className="bg-white dark:bg-gray-800 rounded-xl p-2 shadow-2xl max-w-2xl mx-auto"
             >
               <div className="flex flex-col md:flex-row gap-2">
                 <div className="flex-1">
@@ -126,14 +126,14 @@ const Home = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Job title, keywords, or company"
-                    className="w-full px-4 py-3 text-gray-900 rounded-lg focus:outline-none"
+                    className="w-full px-4 py-3 text-gray-900 dark:text-white dark:bg-gray-700 rounded-lg focus:outline-none"
                   />
                 </div>
                 <div className="md:w-48">
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full px-4 py-3 text-gray-900 border-l md:border-l-0 border-gray-300 rounded-lg focus:outline-none"
+                    className="w-full px-4 py-3 text-gray-900 dark:text-white dark:bg-gray-700 border-l md:border-l-0 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none"
                   >
                     <option value="">All Categories</option>
                     {categories.map((cat) => (
@@ -163,7 +163,7 @@ const Home = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="bg-gray-50 py-12">
+      <section className="bg-gray-50 dark:bg-gray-800 py-12">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
@@ -210,7 +210,7 @@ const Home = () => {
             {steps.map((step, index) => (
               <div
                 key={index}
-                className="text-center p-6 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow"
+                className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700 hover:shadow-md transition-shadow"
               >
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-2xl mx-auto mb-4">
                   {step.icon}
@@ -229,7 +229,7 @@ const Home = () => {
       </section>
 
       {/* Featured Jobs */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex justify-between items-center mb-12">
             <div>
@@ -252,7 +252,7 @@ const Home = () => {
             {featuredJobs.map((job) => (
               <div
                 key={job.id}
-                className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow"
+                className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700 p-6 hover:shadow-md transition-shadow"
               >
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center">
@@ -345,7 +345,7 @@ const Home = () => {
             {categories.map((category) => (
               <div
                 key={category.name}
-                className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-shadow cursor-pointer"
+                className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer"
                 onClick={() => {
                   setSelectedCategory(category.name);
                   navigate(

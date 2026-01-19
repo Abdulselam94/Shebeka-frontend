@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import DarkModeToggle from "../components/common/DarkModeToggle";
 
 const EmployerLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -22,11 +23,11 @@ const EmployerLayout = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
             {/* Sidebar */}
             <aside
                 className={`${sidebarOpen ? "w-64" : "w-20"
-                    } bg-white border-r border-gray-200 transition-all duration-300 flex flex-col`}
+                    } bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 flex flex-col`}
             >
                 {/* Logo */}
                 <div className="h-16 flex items-center justify-between px-4 border-b">
@@ -52,8 +53,8 @@ const EmployerLayout = () => {
                                 key={item.path}
                                 to={item.path}
                                 className={`flex items-center px-3 py-2 rounded-lg transition-colors ${isActive
-                                        ? "bg-blue-50 text-blue-600"
-                                        : "text-gray-700 hover:bg-gray-100"
+                                        ? "bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-400"
+                                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                                     }`}
                             >
                                 <span className="text-xl">{item.icon}</span>
@@ -90,14 +91,15 @@ const EmployerLayout = () => {
             {/* Main Content */}
             <div className="flex-1 flex flex-col">
                 {/* Top Header */}
-                <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+                <header className="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6">
                     <div>
-                        <h1 className="text-lg font-semibold text-gray-900">
+                        <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
                             {navigation.find((n) => n.path === location.pathname)?.name || "Employer Portal"}
                         </h1>
                     </div>
                     <div className="flex items-center space-x-4">
-                        <button className="p-2 rounded-lg hover:bg-gray-100 relative">
+                        <DarkModeToggle />
+                        <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 relative">
                             🔔
                             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                         </button>

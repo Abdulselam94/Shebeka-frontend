@@ -4,7 +4,7 @@ import LoginForm from "../../components/forms/LoginForm";
 
 const Login = () => {
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navbar />
 
       <main className="flex-grow flex items-center justify-center px-4 py-24">

@@ -28,6 +28,8 @@ import MyApplications from "./pages/applicant/MyApplications";
 import SavedJobs from "./pages/applicant/SavedJobs";
 import ApplicantApplicationDetail from "./pages/applicant/ApplicationDetail";
 import ApplicantSettings from "./pages/applicant/Settings";
+import Companies from "./pages/Companies";
+import About from "./pages/About";
 
 function App() {
   return (
@@ -37,6 +39,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/companies" element={<Companies />} />
+        <Route path="/about" element={<About />} />
 
         {/* Fallback */}
         <Route
