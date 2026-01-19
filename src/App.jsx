@@ -23,6 +23,7 @@ import EmployerLayout from "./layouts/EmployerLayout";
 import Analytics from "./pages/employer/Analytics";
 import Settings from "./pages/employer/Settings";
 import ApplicationDetail from "./pages/employer/ApplicationDetail";
+import ApplicantLayout from "./layouts/ApplicantLayout";
 
 function App() {
   return (
@@ -65,23 +66,18 @@ function App() {
           }
         />
 
-        {/* Applicant Routes */}
+        {/* Applicant Routes - Wrapped in Layout */}
         <Route
-          path="/applicant/dashboard"
+          path="/applicant"
           element={
             <ApplicantRoute>
-              <ApplicantDashboard />
+              <ApplicantLayout />
             </ApplicantRoute>
           }
-        />
-        <Route
-          path="/applicant/profile"
-          element={
-            <ApplicantRoute>
-              <Profile />
-            </ApplicantRoute>
-          }
-        />
+        >
+          <Route path="dashboard" element={<ApplicantDashboard />} />
+          <Route path="profile" element={<Profile />} />
+        </Route>
 
         {/* Employer Routes - Wrapped in Layout */}
         <Route
