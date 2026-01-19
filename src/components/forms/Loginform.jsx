@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { login as loginApi } from "../../api/auth";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -25,8 +26,20 @@ const LoginForm = () => {
       // It will decode the token and set the user automatically
       login(response.token);
 
-      // 👉 Redirect to dashboard
-      navigate("/dashboard");
+      // 👉 Decode token to check role for redirection
+      const decoded = jwtDecode(response.token);
+
+      if (decoded.role === 'RECRUITER') {
+        navigate("/employer/dashboard");
+      } else if (decoded.role === 'APPLIER') {
+        navigate("/applicant/dashboard");
+      } else if (decoded.role === 'ADMIN') {
+        navigate("/admin/dashboard");
+      } else {
+        // Fallback
+        navigate("/dashboard");
+      }
+
     } catch (err) {
       console.log("Login error:", err);
       setError(err.message || "Invalid email or password");

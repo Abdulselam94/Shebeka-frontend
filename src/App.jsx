@@ -12,6 +12,7 @@ import Home from "./pages/Home";
 import EmployerDashboard from "./pages/employer/Dashboard";
 import EmployerRoute from "./routes/EmployerRoute";
 import PostJob from "./pages/employer/PostJob";
+import DashboardRedirect from "./pages/DashboardRedirect";
 
 function App() {
   return (
@@ -32,7 +33,7 @@ function App() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <EmployerDashboard /> {/* Use ApplicantDashboard for now */}
+              <DashboardRedirect />
             </ProtectedRoute>
           }
         />

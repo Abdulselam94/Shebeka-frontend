@@ -46,12 +46,15 @@ const RegisterForm = () => {
     try {
       console.log("🔄 Registering user:", formData);
 
+      // Map userType to backend Role enum
+      const role = formData.userType === "employer" ? "RECRUITER" : "APPLIER";
+
       // Register the user
       const response = await registerApi({
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        userType: formData.userType,
+        role: role,
       });
 
       console.log("✅ Registration successful:", response);
@@ -151,11 +154,10 @@ const RegisterForm = () => {
           </label>
           <div className="grid grid-cols-2 gap-4">
             <label
-              className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${
-                formData.userType === "jobseeker"
+              className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${formData.userType === "jobseeker"
                   ? "border-blue-500 bg-blue-50"
                   : "border-gray-300 hover:bg-gray-50"
-              } ${loading || success ? "opacity-50 cursor-not-allowed" : ""}`}
+                } ${loading || success ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               <input
                 type="radio"
@@ -169,11 +171,10 @@ const RegisterForm = () => {
               <span className="ml-2 text-sm">Job Seeker</span>
             </label>
             <label
-              className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${
-                formData.userType === "employer"
+              className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${formData.userType === "employer"
                   ? "border-blue-500 bg-blue-50"
                   : "border-gray-300 hover:bg-gray-50"
-              } ${loading || success ? "opacity-50 cursor-not-allowed" : ""}`}
+                } ${loading || success ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               <input
                 type="radio"
