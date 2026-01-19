@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 
@@ -18,20 +19,25 @@ import EmployerApplications from "./pages/employer/Applications";
 import EditJob from "./pages/employer/EditJob";
 import EmployerJobDetail from "./pages/employer/JobDetail";
 import CompanyProfile from "./pages/employer/CompanyProfile";
+import EmployerLayout from "./layouts/EmployerLayout";
+import Analytics from "./pages/employer/Analytics";
+import Settings from "./pages/employer/Settings";
+import ApplicationDetail from "./pages/employer/ApplicationDetail";
 
 function App() {
   return (
     <Router>
+      <Toaster position="top-right" />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Home />} />
+        <Route path="/register" element={<Register />} />
 
         {/* Fallback */}
         <Route
           path="*"
           element={<div className="p-8 text-center">Page Not Found</div>}
         />
-        <Route path="/register" element={<Register />} />
 
         {/* Protected Routes - Generic Dashboard */}
         <Route
@@ -77,63 +83,26 @@ function App() {
           }
         />
 
-        {/* Employer Routes */}
+        {/* Employer Routes - Wrapped in Layout */}
         <Route
-          path="/employer/dashboard"
+          path="/employer"
           element={
             <EmployerRoute>
-              <EmployerDashboard />
+              <EmployerLayout />
             </EmployerRoute>
           }
-        />
-        <Route
-          path="/employer/post-job"
-          element={
-            <EmployerRoute>
-              <PostJob />
-            </EmployerRoute>
-          }
-        />
-        <Route
-          path="/employer/jobs"
-          element={
-            <EmployerRoute>
-              <EmployerJobs />
-            </EmployerRoute>
-          }
-        />
-        <Route
-          path="/employer/jobs/:id"
-          element={
-            <EmployerRoute>
-              <EmployerJobDetail />
-            </EmployerRoute>
-          }
-        />
-        <Route
-          path="/employer/jobs/:id/edit"
-          element={
-            <EmployerRoute>
-              <EditJob />
-            </EmployerRoute>
-          }
-        />
-        <Route
-          path="/employer/applications"
-          element={
-            <EmployerRoute>
-              <EmployerApplications />
-            </EmployerRoute>
-          }
-        />
-        <Route
-          path="/employer/profile"
-          element={
-            <EmployerRoute>
-              <CompanyProfile />
-            </EmployerRoute>
-          }
-        />
+        >
+          <Route path="dashboard" element={<EmployerDashboard />} />
+          <Route path="post-job" element={<PostJob />} />
+          <Route path="jobs" element={<EmployerJobs />} />
+          <Route path="jobs/:id" element={<EmployerJobDetail />} />
+          <Route path="jobs/:id/edit" element={<EditJob />} />
+          <Route path="applications" element={<EmployerApplications />} />
+          <Route path="applications/:id" element={<ApplicationDetail />} />
+          <Route path="analytics" element={<Analytics />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="profile" element={<CompanyProfile />} />
+        </Route>
       </Routes>
     </Router>
   );
