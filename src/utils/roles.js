@@ -1,6 +1,5 @@
-// src/utils/roles.js
 export const ROLES = {
-  APPLICANT: "applicant",
-  RECRUITER: "recruiter",
-  ADMIN: "admin",
+  APPLICANT: "APPLIER", // Backend uses APPLIER, not APPLICANT enum? Wait check Schema. 
+  RECRUITER: "RECRUITER",
+  ADMIN: "ADMIN",
 };

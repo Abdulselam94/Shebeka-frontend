@@ -13,6 +13,11 @@ import EmployerDashboard from "./pages/employer/Dashboard";
 import EmployerRoute from "./routes/EmployerRoute";
 import PostJob from "./pages/employer/PostJob";
 import DashboardRedirect from "./pages/DashboardRedirect";
+import EmployerJobs from "./pages/employer/Jobs";
+import EmployerApplications from "./pages/employer/Applications";
+import EditJob from "./pages/employer/EditJob";
+import EmployerJobDetail from "./pages/employer/JobDetail";
+import CompanyProfile from "./pages/employer/CompanyProfile";
 
 function App() {
   return (
@@ -66,12 +71,13 @@ function App() {
         <Route
           path="/applicant/profile"
           element={
-            // Add this route
             <ApplicantRoute>
               <Profile />
             </ApplicantRoute>
           }
         />
+
+        {/* Employer Routes */}
         <Route
           path="/employer/dashboard"
           element={
@@ -85,6 +91,46 @@ function App() {
           element={
             <EmployerRoute>
               <PostJob />
+            </EmployerRoute>
+          }
+        />
+        <Route
+          path="/employer/jobs"
+          element={
+            <EmployerRoute>
+              <EmployerJobs />
+            </EmployerRoute>
+          }
+        />
+        <Route
+          path="/employer/jobs/:id"
+          element={
+            <EmployerRoute>
+              <EmployerJobDetail />
+            </EmployerRoute>
+          }
+        />
+        <Route
+          path="/employer/jobs/:id/edit"
+          element={
+            <EmployerRoute>
+              <EditJob />
+            </EmployerRoute>
+          }
+        />
+        <Route
+          path="/employer/applications"
+          element={
+            <EmployerRoute>
+              <EmployerApplications />
+            </EmployerRoute>
+          }
+        />
+        <Route
+          path="/employer/profile"
+          element={
+            <EmployerRoute>
+              <CompanyProfile />
             </EmployerRoute>
           }
         />

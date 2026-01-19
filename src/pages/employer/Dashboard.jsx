@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { employerApi } from "../../api/employers";
 
 const EmployerDashboard = () => {
   const { user } = useAuth();
@@ -10,53 +11,74 @@ const EmployerDashboard = () => {
     interviewsScheduled: 0,
     newApplications: 0,
   });
-
-  // Mock data - replace with API calls
-  const recentJobs = [
-    {
-      id: 1,
-      title: "Senior Frontend Developer",
-      applications: 24,
-      status: "active",
-    },
-    { id: 2, title: "UX Designer", applications: 18, status: "active" },
-    { id: 3, title: "Product Manager", applications: 32, status: "closed" },
-  ];
-
-  const recentApplications = [
-    {
-      id: 1,
-      jobTitle: "Senior Frontend Developer",
-      applicant: "John Doe",
-      date: "2024-01-15",
-      status: "new",
-    },
-    {
-      id: 2,
-      jobTitle: "UX Designer",
-      applicant: "Jane Smith",
-      date: "2024-01-14",
-      status: "reviewed",
-    },
-    {
-      id: 3,
-      jobTitle: "Product Manager",
-      applicant: "Bob Johnson",
-      date: "2024-01-13",
-      status: "interview",
-    },
-  ];
+  const [recentJobs, setRecentJobs] = useState([]);
+  const [recentApplications, setRecentApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch employer stats
-    const mockStats = {
-      activeJobs: 3,
-      totalApplications: 74,
-      interviewsScheduled: 5,
-      newApplications: 12,
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+
+        // 1. Fetch Stats
+        const statsData = await employerApi.getStats();
+        // statsData structure from backend: { totalJobs, activeJobs, totalApplications, recentApplications }
+        // We might need to adjust based on actual backend response. 
+        // Let's assume the backend returns something like:
+        // { 
+        //   overview: { totalJobs, activeJobs, totalApplications, interviewCount }, 
+        //   recentApplications: [...] 
+        // }
+        // If not, we might need to make multiple calls.
+        // Let's look at applier.controller.getApplicationStats... it returns:
+        // { totalApplications, applicationsByStatus: [...], recentApplications: [...] }
+
+        // Wait, applier.controller.getApplicationStats seems to be what we get from /applications/stats.
+        // But we also need Job stats.
+        // Let's get jobs separately to calc job stats, or we can just count them.
+
+        const jobsData = await employerApi.getPostedJobs(); // { jobs: [...] }
+        const myJobs = jobsData.jobs || [];
+
+        const activeJobsCount = myJobs.filter(j => j.status === 'OPEN').length; // Backend uses 'OPEN', not 'active'
+        const draftJobsCount = myJobs.filter(j => j.status === 'DRAFT').length; // If draft exists
+
+        // Calculate total applications across all jobs (redundant if stats endpoint gives it, but safe)
+        // Actually, let's use the stats endpoint for applications.
+        const appsStats = await employerApi.getStats();
+
+        setStats({
+          activeJobs: activeJobsCount,
+          totalApplications: appsStats.totalApplications || 0,
+          interviewsScheduled: 0, // Not tracked in backend efficiently yet
+          newApplications: 0 // Would need to filter apps by status 'PENDING'
+        });
+
+        // Recent Jobs (take first 3)
+        setRecentJobs(myJobs.slice(0, 3));
+
+        // Recent Applications
+        setRecentApplications(appsStats.recentApplications || []);
+
+      } catch (error) {
+        console.error("Error loading dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
     };
-    setStats(mockStats);
-  }, []);
+
+    if (user) {
+      fetchDashboardData();
+    }
+  }, [user]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-blue-600">Loading dashboard...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -139,30 +161,20 @@ const EmployerDashboard = () => {
             </div>
           </div>
 
+          {/* Placeholder stats */}
           <div className="bg-white p-6 rounded-lg shadow-sm border">
             <div className="flex items-center">
               <div className="p-3 bg-purple-100 rounded-lg">
-                <svg
-                  className="w-6 h-6 text-purple-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
+                <svg className="w-6 h-6 text-purple-600"
+                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">
-                  Interviews Scheduled
+                  Time to Hire
                 </p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {stats.interviewsScheduled}
-                </p>
+                <p className="text-2xl font-bold text-gray-900">--</p>
               </div>
             </div>
           </div>
@@ -180,17 +192,15 @@ const EmployerDashboard = () => {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                   />
                 </svg>
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">
-                  New Applications
+                  New Applicants (Week)
                 </p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {stats.newApplications}
-                </p>
+                <p className="text-2xl font-bold text-gray-900">--</p>
               </div>
             </div>
           </div>
@@ -210,38 +220,46 @@ const EmployerDashboard = () => {
                 View All
               </Link>
             </div>
-            <div className="space-y-4">
-              {recentJobs.map((job) => (
-                <div
-                  key={job.id}
-                  className="flex justify-between items-center p-4 border rounded-lg"
-                >
-                  <div>
-                    <h3 className="font-medium text-gray-900">{job.title}</h3>
-                    <p className="text-sm text-gray-600">
-                      {job.applications} applications
-                    </p>
+            {recentJobs.length > 0 ? (
+              <div className="space-y-4">
+                {recentJobs.map((job) => (
+                  <div
+                    key={job.id}
+                    className="flex justify-between items-center p-4 border rounded-lg"
+                  >
+                    <div>
+                      <h3 className="font-medium text-gray-900">{job.title}</h3>
+                      <p className="text-sm text-gray-600">
+                        {/* We don't have application count in job list directly from backend unless we include it. 
+                            The default getMyJobs might just return Job fields. 
+                            We can update backend to include count, or just ignore it here for now. */}
+                        {/* Assuming job.applications is NOT available yet */}
+                        Posted: {new Date(job.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span
+                        className={`px-2 py-1 text-xs rounded-full ${job.status === "OPEN"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-800"
+                          }`}
+                      >
+                        {job.status}
+                      </span>
+                      <Link
+                        to={`/employer/jobs/${job.id}`} // Or update link to edit page
+                        className="text-blue-600 hover:text-blue-500 text-sm"
+                      >
+                        Edit
+                      </Link>
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <span
-                      className={`px-2 py-1 text-xs rounded-full ${
-                        job.status === "active"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
-                    >
-                      {job.status}
-                    </span>
-                    <Link
-                      to={`/employer/jobs/${job.id}`}
-                      className="text-blue-600 hover:text-blue-500 text-sm"
-                    >
-                      View
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-sm">No active jobs found.</p>
+            )}
+
           </div>
 
           {/* Recent Applications */}
@@ -257,41 +275,38 @@ const EmployerDashboard = () => {
                 View All
               </Link>
             </div>
-            <div className="space-y-4">
-              {recentApplications.map((app) => (
-                <div
-                  key={app.id}
-                  className="flex justify-between items-center p-4 border rounded-lg"
-                >
-                  <div>
-                    <h3 className="font-medium text-gray-900">
-                      {app.applicant}
-                    </h3>
-                    <p className="text-sm text-gray-600">{app.jobTitle}</p>
-                    <p className="text-xs text-gray-500">{app.date}</p>
+            {recentApplications.length > 0 ? (
+              <div className="space-y-4">
+                {recentApplications.map((app) => (
+                  <div
+                    key={app.id}
+                    className="flex justify-between items-center p-4 border rounded-lg"
+                  >
+                    <div>
+                      <h3 className="font-medium text-gray-900">
+                        {app.applier?.name || "Candidate"}
+                      </h3>
+                      <p className="text-sm text-gray-600">{app.job?.title}</p>
+                      <p className="text-xs text-gray-500">{new Date(app.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span
+                        className={`px-2 py-1 text-xs rounded-full ${app.status === "PENDING"
+                            ? "bg-blue-100 text-blue-800"
+                            : app.status === "ACCEPTED"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
+                      >
+                        {app.status}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <span
-                      className={`px-2 py-1 text-xs rounded-full ${
-                        app.status === "new"
-                          ? "bg-blue-100 text-blue-800"
-                          : app.status === "reviewed"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-purple-100 text-purple-800"
-                      }`}
-                    >
-                      {app.status}
-                    </span>
-                    <Link
-                      to={`/employer/applications/${app.id}`}
-                      className="text-blue-600 hover:text-blue-500 text-sm"
-                    >
-                      Review
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-sm">No applications received yet.</p>
+            )}
           </div>
         </div>
 

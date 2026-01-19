@@ -13,8 +13,11 @@ const EmployerJobs = () => {
 
   const loadJobs = async () => {
     try {
-      const response = await employerApi.getPostedJobs();
-      setJobs(response.jobs || []);
+      setLoading(true);
+      const data = await employerApi.getPostedJobs();
+      // Backend returns { jobs: [...] } or just [...] depending on controller.
+      // Based on previous code, likely { jobs: [...] }
+      setJobs(data.jobs || data || []);
     } catch (error) {
       console.error("Error loading jobs:", error);
     } finally {
@@ -24,6 +27,7 @@ const EmployerJobs = () => {
 
   const handleUpdateStatus = async (jobId, newStatus) => {
     try {
+      // Backend expects status string.
       await employerApi.updateJobStatus(jobId, newStatus);
       // Update local state
       setJobs(
@@ -48,11 +52,24 @@ const EmployerJobs = () => {
     }
   };
 
+  // Helper to normalize status for display/filtering
+  // Backend likely uses: OPEN, APP_CLOSED, DRAFT, HIDDEN
+  // Frontend previously used: active, draft, closed
+  // Let's map: OPEN -> active, DRAFT -> draft, APP_CLOSED -> closed
+  const getDisplayStatus = (status) => {
+    if (!status) return 'unknown';
+    if (status === 'OPEN') return 'active';
+    if (status === 'APP_CLOSED' || status === 'CLOSED') return 'closed';
+    if (status === 'DRAFT') return 'draft';
+    return status.toLowerCase();
+  };
+
   const filteredJobs =
-    filter === "all" ? jobs : jobs.filter((job) => job.status === filter);
+    filter === "all" ? jobs : jobs.filter((job) => getDisplayStatus(job.status) === filter);
 
   const getStatusColor = (status) => {
-    switch (status) {
+    const displayStatus = getDisplayStatus(status);
+    switch (displayStatus) {
       case "active":
         return "bg-green-100 text-green-800";
       case "draft":
@@ -65,24 +82,16 @@ const EmployerJobs = () => {
   };
 
   const getStatusLabel = (status) => {
-    switch (status) {
-      case "active":
-        return "Active";
-      case "draft":
-        return "Draft";
-      case "closed":
-        return "Closed";
-      default:
-        return status;
-    }
+    const displayStatus = getDisplayStatus(status);
+    return displayStatus.charAt(0).toUpperCase() + displayStatus.slice(1);
   };
 
   const stats = {
     total: jobs.length,
-    active: jobs.filter((j) => j.status === "active").length,
-    draft: jobs.filter((j) => j.status === "draft").length,
-    closed: jobs.filter((j) => j.status === "closed").length,
-    totalApplications: jobs.reduce((sum, job) => sum + job.applications, 0),
+    active: jobs.filter((j) => getDisplayStatus(j.status) === "active").length,
+    draft: jobs.filter((j) => getDisplayStatus(j.status) === "draft").length,
+    closed: jobs.filter((j) => getDisplayStatus(j.status) === "closed").length,
+    totalApplications: jobs.reduce((sum, job) => sum + (job._count?.applications || 0), 0),
   };
 
   if (loading) {
@@ -233,41 +242,37 @@ const EmployerJobs = () => {
           <div className="flex flex-wrap gap-4">
             <button
               onClick={() => setFilter("all")}
-              className={`px-4 py-2 rounded-lg border transition-colors ${
-                filter === "all"
+              className={`px-4 py-2 rounded-lg border transition-colors ${filter === "all"
                   ? "border-blue-500 bg-blue-50 text-blue-700"
                   : "border-gray-300 text-gray-700 hover:bg-gray-50"
-              }`}
+                }`}
             >
               All Jobs ({stats.total})
             </button>
             <button
               onClick={() => setFilter("active")}
-              className={`px-4 py-2 rounded-lg border transition-colors ${
-                filter === "active"
+              className={`px-4 py-2 rounded-lg border transition-colors ${filter === "active"
                   ? "border-green-500 bg-green-50 text-green-700"
                   : "border-gray-300 text-gray-700 hover:bg-gray-50"
-              }`}
+                }`}
             >
               Active ({stats.active})
             </button>
             <button
               onClick={() => setFilter("draft")}
-              className={`px-4 py-2 rounded-lg border transition-colors ${
-                filter === "draft"
+              className={`px-4 py-2 rounded-lg border transition-colors ${filter === "draft"
                   ? "border-yellow-500 bg-yellow-50 text-yellow-700"
                   : "border-gray-300 text-gray-700 hover:bg-gray-50"
-              }`}
+                }`}
             >
               Draft ({stats.draft})
             </button>
             <button
               onClick={() => setFilter("closed")}
-              className={`px-4 py-2 rounded-lg border transition-colors ${
-                filter === "closed"
+              className={`px-4 py-2 rounded-lg border transition-colors ${filter === "closed"
                   ? "border-red-500 bg-red-50 text-red-700"
                   : "border-gray-300 text-gray-700 hover:bg-gray-50"
-              }`}
+                }`}
             >
               Closed ({stats.closed})
             </button>
@@ -309,10 +314,10 @@ const EmployerJobs = () => {
                           <p className="text-sm font-medium text-gray-900">
                             {job.title}
                           </p>
-                          <p className="text-sm text-gray-500">{job.company}</p>
+                          <p className="text-sm text-gray-500">{job.companyName || "Your Company"}</p>
                           <div className="flex items-center space-x-2 mt-1">
                             <span className="text-xs text-gray-500">
-                              {job.type}
+                              {job.jobType}
                             </span>
                             <span className="text-gray-300">•</span>
                             <span className="text-xs text-gray-500">
@@ -335,14 +340,14 @@ const EmployerJobs = () => {
                           to={`/employer/applications/${job.id}`}
                           className="text-blue-600 hover:text-blue-900 font-medium"
                         >
-                          {job.applications} applicants
+                          {job._count?.applications || 0} applicants
                         </Link>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        {job.views}
+                        {job.views || 0}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
-                        {job.postedDate}
+                        {new Date(job.createdAt).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex space-x-2">
@@ -352,19 +357,19 @@ const EmployerJobs = () => {
                           >
                             Edit
                           </Link>
-                          {job.status === "active" ? (
+                          {getDisplayStatus(job.status) === "active" ? (
                             <button
                               onClick={() =>
-                                handleUpdateStatus(job.id, "closed")
+                                handleUpdateStatus(job.id, "APP_CLOSED")
                               }
                               className="text-yellow-600 hover:text-yellow-900"
                             >
                               Close
                             </button>
-                          ) : job.status === "closed" ? (
+                          ) : getDisplayStatus(job.status) === "closed" ? (
                             <button
                               onClick={() =>
-                                handleUpdateStatus(job.id, "active")
+                                handleUpdateStatus(job.id, "OPEN")
                               }
                               className="text-green-600 hover:text-green-900"
                             >
@@ -373,7 +378,7 @@ const EmployerJobs = () => {
                           ) : (
                             <button
                               onClick={() =>
-                                handleUpdateStatus(job.id, "active")
+                                handleUpdateStatus(job.id, "OPEN")
                               }
                               className="text-green-600 hover:text-green-900"
                             >

@@ -4,14 +4,13 @@ const API_BASE_URL = "http://localhost:5000/api";
 export const applyForJob = async (jobId, applicationData) => {
   const token = localStorage.getItem("token");
 
-  const response = await fetch(`${API_BASE_URL}/applications/apply`, {
+  const response = await fetch(`${API_BASE_URL}/applications/job/${jobId}/apply`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({
-      jobId,
       ...applicationData,
     }),
   });
@@ -27,7 +26,7 @@ export const applyForJob = async (jobId, applicationData) => {
 export const getApplications = async () => {
   const token = localStorage.getItem("token");
 
-  const response = await fetch(`${API_BASE_URL}/applications/my-applications`, {
+  const response = await fetch(`${API_BASE_URL}/applications/my/applications`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
