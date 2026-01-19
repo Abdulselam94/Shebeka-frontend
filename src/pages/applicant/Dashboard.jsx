@@ -3,41 +3,41 @@ import Footer from "../../components/layout/Footer";
 import Navbar from "../../components/layout/Navbar";
 import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getApplications } from "../../api/application";
 
 const ApplicantDashboard = () => {
   const { user } = useAuth();
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock data - replace with actual API calls
+  useEffect(() => {
+    const fetchApplications = async () => {
+      try {
+        const data = await getApplications();
+        // API returns { message, applications: [...] }
+        setApplications(data.applications || []);
+      } catch (error) {
+        console.error("Failed to fetch applications:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchApplications();
+    }
+  }, [user]);
+
+  // Derived stats
   const stats = {
-    appliedJobs: 3,
-    savedJobs: 5,
-    profileViews: 12,
-    interviews: 1,
+    appliedJobs: applications.length,
+    savedJobs: 0, // Not implemented yet
+    profileViews: 0, // Not implemented yet
+    interviews: applications.filter(app => app.status === "ACCEPTED").length, // Assuming ACCEPTED means interview/offer
   };
 
-  const recentApplications = [
-    {
-      id: 1,
-      title: "Frontend Developer",
-      company: "Tech Corp",
-      status: "Under Review",
-      date: "2024-01-15",
-    },
-    {
-      id: 2,
-      title: "UX Designer",
-      company: "Design Co",
-      status: "Applied",
-      date: "2024-01-14",
-    },
-    {
-      id: 3,
-      title: "Product Manager",
-      company: "Startup Inc",
-      status: "Rejected",
-      date: "2024-01-10",
-    },
-  ];
+  const recentApplications = applications.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -197,39 +197,45 @@ const ApplicantDashboard = () => {
                 View All
               </Link>
             </div>
-            <div className="space-y-4">
-              {recentApplications.map((application) => (
-                <div
-                  key={application.id}
-                  className="flex justify-between items-center p-3 border rounded-lg"
-                >
-                  <div>
-                    <h3 className="font-medium text-gray-900">
-                      {application.title}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      {application.company}
-                    </p>
+
+            {loading ? (
+              <p className="text-gray-500">Loading applications...</p>
+            ) : recentApplications.length === 0 ? (
+              <p className="text-gray-500">No applications yet.</p>
+            ) : (
+              <div className="space-y-4">
+                {recentApplications.map((application) => (
+                  <div
+                    key={application.id}
+                    className="flex justify-between items-center p-3 border rounded-lg"
+                  >
+                    <div>
+                      <h3 className="font-medium text-gray-900">
+                        {application.job.title}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {application.job.recruiter?.name || "Company"}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <span
+                        className={`inline-block px-2 py-1 text-xs rounded-full ${application.status === "PENDING"
+                            ? "bg-blue-100 text-blue-800"
+                            : application.status === "ACCEPTED"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                      >
+                        {application.status}
+                      </span>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {new Date(application.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <span
-                      className={`inline-block px-2 py-1 text-xs rounded-full ${
-                        application.status === "Under Review"
-                          ? "bg-blue-100 text-blue-800"
-                          : application.status === "Applied"
-                          ? "bg-gray-100 text-gray-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {application.status}
-                    </span>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {application.date}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Quick Links */}
@@ -281,7 +287,7 @@ const ApplicantDashboard = () => {
               </Link>
 
               <Link
-                to="/applicant/resume"
+                to="/applicant/profile"
                 className="p-4 border-2 border-dashed border-gray-300 rounded-lg text-center hover:border-purple-500 hover:bg-purple-50 transition-colors"
               >
                 <svg

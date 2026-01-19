@@ -1,12 +1,18 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { applyForJob } from "../../api/application";
+import { applyForJob, getApplications } from "../../api/application";
+import { getJob } from "../../api/jobs";
+import { getProfile } from "../../api/profile";
 
 const JobDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  const [job, setJob] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const [isSaved, setIsSaved] = useState(false);
   const [hasApplied, setHasApplied] = useState(false);
@@ -14,92 +20,39 @@ const JobDetail = () => {
   const [applyError, setApplyError] = useState("");
   const [userProfile, setUserProfile] = useState(null);
 
-  // Mock data - replace with API call using the id
-  const job = {
-    id: 1,
-    title: "Frontend Developer",
-    company: "Tech Corp",
-    location: "Remote",
-    type: "Full-time",
-    category: "Engineering",
-    salary: "$80,000 - $120,000",
-    description:
-      "We are looking for a skilled Frontend Developer to join our team. You will be responsible for building user interfaces and implementing design systems.",
-    fullDescription: `
-      <p>Tech Corp is seeking a talented Frontend Developer to join our growing team. In this role, you'll work on building responsive, accessible, and performant user interfaces for our web applications.</p>
-      
-      <h3>Responsibilities:</h3>
-      <ul>
-        <li>Develop and maintain high-quality web applications using React.js</li>
-        <li>Collaborate with designers to implement pixel-perfect UI designs</li>
-        <li>Write clean, maintainable, and well-documented code</li>
-        <li>Participate in code reviews and team meetings</li>
-        <li>Optimize applications for maximum speed and scalability</li>
-        <li>Stay up-to-date with emerging frontend technologies</li>
-      </ul>
-
-      <h3>Requirements:</h3>
-      <ul>
-        <li>3+ years of experience in frontend development</li>
-        <li>Proficiency in React.js, JavaScript, HTML5, and CSS3</li>
-        <li>Experience with state management libraries (Redux, Context API)</li>
-        <li>Familiarity with modern frontend build tools and pipelines</li>
-        <li>Knowledge of responsive design principles</li>
-        <li>Experience with version control (Git)</li>
-      </ul>
-
-      <h3>Nice to Have:</h3>
-      <ul>
-        <li>Experience with TypeScript</li>
-        <li>Knowledge of testing frameworks (Jest, React Testing Library)</li>
-        <li>Familiarity with backend technologies (Node.js, Express)</li>
-        <li>Experience with cloud platforms (AWS, Azure, GCP)</li>
-      </ul>
-    `,
-    requirements: [
-      "Bachelor's degree in Computer Science or related field",
-      "3+ years of professional frontend development experience",
-      "Strong proficiency in JavaScript and React.js",
-      "Experience with responsive web design",
-      "Excellent problem-solving skills",
-    ],
-    benefits: [
-      "Health, dental, and vision insurance",
-      "Flexible work hours and remote work options",
-      "Professional development budget",
-      "401(k) with company matching",
-      "Unlimited paid time off",
-      "Stock options",
-    ],
-    companyInfo: {
-      name: "Tech Corp",
-      description:
-        "Tech Corp is a leading technology company focused on building innovative solutions that transform industries. We believe in creating products that make a difference in people's lives.",
-      size: "201-500 employees",
-      industry: "Technology",
-      website: "https://techcorp.example.com",
-      founded: "2015",
-    },
-    postedDate: "2024-01-15",
-    applicationDeadline: "2024-02-15",
-    applicants: 47,
-  };
-
-  // Load user profile and check application status
   useEffect(() => {
-    // Load user profile from localStorage (replace with API call)
-    const profile = JSON.parse(localStorage.getItem("userProfile") || "null");
-    setUserProfile(profile);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        // Fetch job details
+        const jobData = await getJob(id);
+        setJob(jobData.job);
 
-    // Check if user has already applied
-    const userApplications = JSON.parse(
-      localStorage.getItem("userApplications") || "[]"
-    );
-    const hasAppliedToJob = userApplications.some(
-      (app) => app.jobId === parseInt(id)
-    );
-    setHasApplied(hasAppliedToJob);
-  }, [id]);
+        // Fetch user profile and applications to check status
+        if (user) {
+          const profileData = await getProfile();
+          // Profile API returns { message, user: { ... } }
+          setUserProfile(profileData.user || profileData);
+
+          const applicationsData = await getApplications();
+          // Applications API returns { message, applications: [...] }
+          const myApps = applicationsData.applications || [];
+
+          const hasAppliedParams = myApps.some(
+            (app) => app.jobId === parseInt(id)
+          );
+          setHasApplied(hasAppliedParams);
+        }
+      } catch (err) {
+        console.error("Error loading job details:", err);
+        setError("Failed to load job details.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id, user]);
 
   const handleSaveJob = () => {
     setIsSaved(!isSaved);
@@ -111,32 +64,28 @@ const JobDetail = () => {
     setApplyError("");
 
     try {
-      // Check if user has completed profile
-      if (!userProfile || !userProfile.fullName || !userProfile.email) {
-        setApplyError("Please complete your profile before applying");
+      // Check if user has required profile info
+      if (!userProfile) {
+        setApplyError("Please log in to apply.");
         setApplying(false);
         return;
       }
 
-      // Check if resume is uploaded
-      if (!userProfile.resumeUrl) {
-        setApplyError("Please upload your resume before applying");
+      // Check resume - backend calls it 'resume'
+      if (!userProfile.resume) {
+        setApplyError("Please upload your resume in your profile before applying");
         setApplying(false);
         return;
       }
 
-      // Prepare application data
+      // Prepare application data - Backend only expects coverLetter and optional resume
+      // Since the user already has a resume on profile, backend uses it by default if we don't send one.
       const applicationData = {
-        applicantName: userProfile.fullName,
-        applicantEmail: userProfile.email,
-        applicantPhone: userProfile.phone || "",
-        coverLetter: `I am excited to apply for the ${job.title} position at ${
-          job.company
-        }. With my skills in ${
-          userProfile.skills?.join(", ") || "web development"
-        }, I believe I would be a great fit for this role.`,
-        resumeUrl: userProfile.resumeUrl,
-        skills: userProfile.skills || [],
+        coverLetter: `I am executing to apply for the ${job.title} position at ${job.title // job.company is not top level in schema, it's job.recruiter (user) or just omitted. 
+          // Wait, backend Job schema doesn't have 'company'. It has 'recruiter' (User). 
+          // Recruitment platforms usually have a Company profile, but here it seems simple.
+          // Let's just say "your company" or use recruiter name if available.
+          } `,
       };
 
       // Submit application
@@ -144,24 +93,6 @@ const JobDetail = () => {
 
       // Update local state
       setHasApplied(true);
-
-      // Store in localStorage for demo
-      const userApplications = JSON.parse(
-        localStorage.getItem("userApplications") || "[]"
-      );
-      userApplications.push({
-        id: Date.now(),
-        jobId: job.id,
-        jobTitle: job.title,
-        company: job.company,
-        location: job.location,
-        appliedDate: new Date().toISOString(),
-        status: "applied",
-      });
-      localStorage.setItem(
-        "userApplications",
-        JSON.stringify(userApplications)
-      );
 
       // Show success message
       console.log("Application submitted:", result);
@@ -175,32 +106,42 @@ const JobDetail = () => {
     }
   };
 
-  const similarJobs = [
-    {
-      id: 2,
-      title: "React Developer",
-      company: "Web Solutions",
-      location: "Remote",
-      type: "Full-time",
-      salary: "$85,000 - $125,000",
-    },
-    {
-      id: 3,
-      title: "UI Developer",
-      company: "Design Tech",
-      location: "New York, NY",
-      type: "Full-time",
-      salary: "$90,000 - $130,000",
-    },
-    {
-      id: 4,
-      title: "Frontend Engineer",
-      company: "Startup Labs",
-      location: "Remote",
-      type: "Contract",
-      salary: "$75,000 - $110,000",
-    },
-  ];
+  // Helper to display requirements
+  const renderRequirements = (reqs) => {
+    if (!reqs) return <p className="text-gray-500">No specific requirements listed.</p>;
+    // If it's a string, we can split by newlines or just show it
+    if (typeof reqs === 'string') {
+      return (
+        <ul className="space-y-2">
+          {reqs.split('\n').map((line, i) => (
+            line.trim() && (
+              <li key={i} className="flex items-start">
+                <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-gray-700">{line}</span>
+              </li>
+            )
+          ))}
+        </ul>
+      );
+    }
+    return <p>{reqs}</p>;
+  };
+
+  if (loading) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  }
+
+  if (error || !job) {
+    return (
+      <div className="flex flex-col justify-center items-center h-screen">
+        <h2 className="text-xl font-bold text-gray-800">Job Not Found</h2>
+        <p className="text-gray-600 mb-4">{error}</p>
+        <Link to="/jobs" className="text-blue-600 hover:underline">Back to Jobs</Link>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -225,14 +166,6 @@ const JobDetail = () => {
                   />
                 </svg>
                 {applyError}
-                {applyError.includes("complete your profile") && (
-                  <Link
-                    to="/applicant/profile"
-                    className="ml-2 text-blue-600 hover:text-blue-500 font-medium"
-                  >
-                    Complete Profile
-                  </Link>
-                )}
                 {applyError.includes("upload your resume") && (
                   <Link
                     to="/applicant/profile"
@@ -256,21 +189,20 @@ const JobDetail = () => {
             <div>
               <h1 className="text-3xl font-bold text-gray-900">{job.title}</h1>
               <div className="flex items-center space-x-4 mt-2">
-                <p className="text-lg text-gray-600">{job.company}</p>
+                <p className="text-lg text-gray-600">{job.recruiter?.name || "Company Confidential"}</p>
                 <span className="text-gray-400">•</span>
                 <p className="text-gray-600">{job.location}</p>
                 <span className="text-gray-400">•</span>
-                <p className="text-gray-600">{job.type}</p>
+                <p className="text-gray-600">{job.jobType}</p>
               </div>
             </div>
             <div className="flex space-x-3">
               <button
                 onClick={handleSaveJob}
-                className={`flex items-center space-x-2 px-4 py-2 border rounded-lg transition-colors ${
-                  isSaved
+                className={`flex items-center space-x-2 px-4 py-2 border rounded-lg transition-colors ${isSaved
                     ? "border-red-300 bg-red-50 text-red-700 hover:bg-red-100"
                     : "border-gray-300 text-gray-700 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 <svg
                   className="w-5 h-5"
@@ -291,13 +223,12 @@ const JobDetail = () => {
               <button
                 onClick={handleApply}
                 disabled={hasApplied || applying}
-                className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
-                  hasApplied
+                className={`px-6 py-2 rounded-lg font-semibold transition-colors ${hasApplied
                     ? "bg-green-600 text-white cursor-not-allowed"
                     : applying
-                    ? "bg-blue-400 text-white cursor-not-allowed"
-                    : "bg-blue-600 text-white hover:bg-blue-700"
-                }`}
+                      ? "bg-blue-400 text-white cursor-not-allowed"
+                      : "bg-blue-600 text-white hover:bg-blue-700"
+                  }`}
               >
                 {applying ? (
                   <div className="flex items-center">
@@ -341,10 +272,9 @@ const JobDetail = () => {
               <h2 className="text-xl font-semibold text-gray-900 mb-4">
                 Job Description
               </h2>
-              <div
-                className="prose max-w-none text-gray-700"
-                dangerouslySetInnerHTML={{ __html: job.fullDescription }}
-              />
+              <div className="prose max-w-none text-gray-700 whitespace-pre-wrap">
+                {job.description}
+              </div>
             </div>
 
             {/* Requirements */}
@@ -352,54 +282,11 @@ const JobDetail = () => {
               <h2 className="text-xl font-semibold text-gray-900 mb-4">
                 Requirements
               </h2>
-              <ul className="space-y-2">
-                {job.requirements.map((requirement, index) => (
-                  <li key={index} className="flex items-start">
-                    <svg
-                      className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    <span className="text-gray-700">{requirement}</span>
-                  </li>
-                ))}
-              </ul>
+              {renderRequirements(job.requirements)}
             </div>
 
-            {/* Benefits */}
-            <div className="bg-white rounded-lg shadow-sm border p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Benefits & Perks
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {job.benefits.map((benefit, index) => (
-                  <div key={index} className="flex items-center">
-                    <svg
-                      className="w-5 h-5 text-blue-500 mr-2 flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    <span className="text-gray-700">{benefit}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            {/* Benefits - (If available in API, otherwise standard text) */}
+            {/*  <div className="bg-white rounded-lg shadow-sm border p-6"> ... </div> */}
           </div>
 
           {/* Sidebar */}
@@ -413,11 +300,10 @@ const JobDetail = () => {
                 <div className="space-y-3">
                   <div className="flex items-center">
                     <svg
-                      className={`w-5 h-5 mr-2 ${
-                        userProfile?.fullName
+                      className={`w-5 h-5 mr-2 ${userProfile?.name // Backend User model has 'name'
                           ? "text-green-500"
                           : "text-gray-400"
-                      }`}
+                        }`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -431,7 +317,7 @@ const JobDetail = () => {
                     </svg>
                     <span
                       className={
-                        userProfile?.fullName
+                        userProfile?.name
                           ? "text-gray-700"
                           : "text-gray-500"
                       }
@@ -441,11 +327,10 @@ const JobDetail = () => {
                   </div>
                   <div className="flex items-center">
                     <svg
-                      className={`w-5 h-5 mr-2 ${
-                        userProfile?.resumeUrl
+                      className={`w-5 h-5 mr-2 ${userProfile?.resume // Backend User model has 'resume'
                           ? "text-green-500"
                           : "text-gray-400"
-                      }`}
+                        }`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -459,7 +344,7 @@ const JobDetail = () => {
                     </svg>
                     <span
                       className={
-                        userProfile?.resumeUrl
+                        userProfile?.resume
                           ? "text-gray-700"
                           : "text-gray-500"
                       }
@@ -467,7 +352,7 @@ const JobDetail = () => {
                       Upload Resume
                     </span>
                   </div>
-                  {(!userProfile?.fullName || !userProfile?.resumeUrl) && (
+                  {(!userProfile?.name || !userProfile?.resume) && (
                     <Link
                       to="/applicant/profile"
                       className="block w-full text-center bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
@@ -479,46 +364,7 @@ const JobDetail = () => {
               </div>
             )}
 
-            {/* Company Info */}
-            <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                About {job.companyInfo.name}
-              </h3>
-              <p className="text-gray-700 mb-4">
-                {job.companyInfo.description}
-              </p>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Company Size:</span>
-                  <span className="text-gray-900">{job.companyInfo.size}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Industry:</span>
-                  <span className="text-gray-900">
-                    {job.companyInfo.industry}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Founded:</span>
-                  <span className="text-gray-900">
-                    {job.companyInfo.founded}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Website:</span>
-                  <a
-                    href={job.companyInfo.website}
-                    className="text-blue-600 hover:text-blue-500"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Visit Website
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* Job Details */}
+            {/* Job Details Sidebar */}
             <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Job Details
@@ -527,12 +373,12 @@ const JobDetail = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Salary:</span>
                   <span className="text-gray-900 font-medium">
-                    {job.salary}
+                    {job.salary || "Not specified"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Job Type:</span>
-                  <span className="text-gray-900">{job.type}</span>
+                  <span className="text-gray-900">{job.jobType}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Category:</span>
@@ -540,53 +386,18 @@ const JobDetail = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Posted:</span>
-                  <span className="text-gray-900">{job.postedDate}</span>
+                  <span className="text-gray-900">{new Date(job.createdAt).toLocaleDateString()}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Application Deadline:</span>
-                  <span className="text-gray-900">
-                    {job.applicationDeadline}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Applicants:</span>
-                  <span className="text-gray-900">
-                    {job.applicants} applicants
-                  </span>
-                </div>
+                {job.expiresAt && <div className="flex justify-between">
+                  <span className="text-gray-600">Expires:</span>
+                  <span className="text-gray-900">{new Date(job.expiresAt).toLocaleDateString()}</span>
+                </div>}
+
               </div>
             </div>
 
-            {/* Similar Jobs */}
-            <div className="bg-white rounded-lg shadow-sm border p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Similar Jobs
-              </h3>
-              <div className="space-y-4">
-                {similarJobs.map((similarJob) => (
-                  <Link
-                    key={similarJob.id}
-                    to={`/jobs/${similarJob.id}`}
-                    className="block border rounded-lg p-4 hover:border-blue-300 transition-colors hover:bg-blue-50"
-                  >
-                    <h4 className="font-semibold text-gray-900 hover:text-blue-600">
-                      {similarJob.title}
-                    </h4>
-                    <p className="text-gray-600 text-sm">
-                      {similarJob.company}
-                    </p>
-                    <div className="flex justify-between items-center mt-2">
-                      <span className="text-gray-500 text-sm">
-                        {similarJob.location}
-                      </span>
-                      <span className="text-blue-600 text-sm font-medium">
-                        {similarJob.salary}
-                      </span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
+            {/* Similar Jobs - OMITTED FOR NOW AS WE DONT HAVE API FOR IT YET */}
+
           </div>
         </div>
       </div>
