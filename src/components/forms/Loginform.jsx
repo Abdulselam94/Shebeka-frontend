@@ -19,14 +19,9 @@ const LoginForm = () => {
     setError("");
 
     try {
-      // 👉 Call backend API - expect it to return { token: "..." }
       const response = await loginApi(email, password);
-
-      // 👉 Your AuthContext login expects only the token
-      // It will decode the token and set the user automatically
       login(response.token);
 
-      // 👉 Decode token to check role for redirection
       const decoded = jwtDecode(response.token);
 
       if (decoded.role === 'RECRUITER') {
@@ -36,7 +31,6 @@ const LoginForm = () => {
       } else if (decoded.role === 'ADMIN') {
         navigate("/admin/dashboard");
       } else {
-        // Fallback
         navigate("/dashboard");
       }
 
@@ -52,9 +46,9 @@ const LoginForm = () => {
     <div className="w-full max-w-md">
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border dark:border-gray-700">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
-              className="w-8 h-8 text-blue-600"
+              className="w-8 h-8 text-blue-600 dark:text-blue-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -67,20 +61,20 @@ const LoginForm = () => {
               />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h2>
-          <p className="text-gray-600">Sign in to your career dashboard</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back</h2>
+          <p className="text-gray-600 dark:text-gray-400">Sign in to your career dashboard</p>
         </div>
 
         {/* Error Message */}
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm text-center">
+          <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm text-center">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Email Address
             </label>
             <input
@@ -89,13 +83,13 @@ const LoginForm = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
               disabled={loading}
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 text-gray-900 transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 dark:placeholder-gray-500 transition-colors disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
               placeholder="your.email@example.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Password
             </label>
             <input
@@ -104,7 +98,7 @@ const LoginForm = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               disabled={loading}
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 text-gray-900 transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 dark:placeholder-gray-500 transition-colors disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
               placeholder="Enter your password"
             />
           </div>
@@ -112,7 +106,7 @@ const LoginForm = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 rounded-lg text-white font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 disabled:cursor-not-allowed"
+            className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 rounded-lg text-white font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors duration-200 disabled:cursor-not-allowed"
           >
             {loading ? (
               <div className="flex items-center justify-center">
@@ -144,19 +138,20 @@ const LoginForm = () => {
           </button>
         </form>
 
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <p className="text-center text-gray-600 text-sm">
+        <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <p className="text-center text-gray-600 dark:text-gray-400 text-sm">
             Don't have an account?{" "}
             <a
               href="/register"
-              className="text-blue-600 hover:text-blue-500 font-semibold transition-colors"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 font-semibold transition-colors"
             >
               Create account
             </a>
           </p>
         </div>
       </div>
-      );
+    </div>
+  );
 };
 
-      export default LoginForm;
+export default LoginForm;
