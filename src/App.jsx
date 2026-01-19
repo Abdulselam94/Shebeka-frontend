@@ -53,22 +53,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/jobs"
-          element={
-            <ProtectedRoute>
-              <JobList />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/jobs/:id"
-          element={
-            <ProtectedRoute>
-              <JobDetail />
-            </ProtectedRoute>
-          }
-        />
 
         {/* Applicant Routes - Wrapped in Layout */}
         <Route
@@ -81,6 +65,8 @@ function App() {
         >
           <Route path="dashboard" element={<ApplicantDashboard />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="jobs" element={<JobList />} />
+          <Route path="jobs/:id" element={<JobDetail />} />
           <Route path="applications" element={<MyApplications />} />
           <Route path="applications/:id" element={<ApplicantApplicationDetail />} />
           <Route path="saved-jobs" element={<SavedJobs />} />

@@ -11,10 +11,11 @@ const ApplicantLayout = () => {
 
     const navigation = [
         { name: "Dashboard", path: "/applicant/dashboard", icon: "📊" },
-        { name: "Browse Jobs", path: "/jobs", icon: "🔍" },
+        { name: "Browse Jobs", path: "/applicant/jobs", icon: "🔍" },
         { name: "My Applications", path: "/applicant/applications", icon: "📝" },
         { name: "Saved Jobs", path: "/applicant/saved-jobs", icon: "💾" },
         { name: "Profile", path: "/applicant/profile", icon: "👤" },
+        { name: "Settings", path: "/applicant/settings", icon: "⚙️" },
     ];
 
     const handleLogout = () => {
@@ -25,7 +26,7 @@ const ApplicantLayout = () => {
     const handleSearch = (e) => {
         e.preventDefault();
         if (searchQuery.trim()) {
-            navigate(`/jobs?search=${encodeURIComponent(searchQuery)}`);
+            navigate(`/applicant/jobs?search=${encodeURIComponent(searchQuery)}`);
         }
     };
 
@@ -60,8 +61,8 @@ const ApplicantLayout = () => {
                                 key={item.path}
                                 to={item.path}
                                 className={`flex items-center px-3 py-2 rounded-lg transition-colors ${isActive
-                                        ? "bg-blue-50 text-blue-600"
-                                        : "text-gray-700 hover:bg-gray-100"
+                                    ? "bg-blue-50 text-blue-600"
+                                    : "text-gray-700 hover:bg-gray-100"
                                     }`}
                             >
                                 <span className="text-xl">{item.icon}</span>
