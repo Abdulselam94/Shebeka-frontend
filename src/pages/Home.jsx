@@ -93,8 +93,7 @@ const Home = () => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(
-        `/jobs?search=${encodeURIComponent(searchQuery)}${
-          selectedCategory ? `&category=${selectedCategory}` : ""
+        `/applicant/jobs?search=${encodeURIComponent(searchQuery)}${selectedCategory ? `&category=${selectedCategory}` : ""
         }`
       );
     }
@@ -318,7 +317,7 @@ const Home = () => {
                     Posted {job.posted}
                   </span>
                   <Link
-                    to={`/jobs/${job.id}`}
+                    to={`/applicant/jobs/${job.id}`}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
                   >
                     View Details
@@ -350,7 +349,7 @@ const Home = () => {
                 onClick={() => {
                   setSelectedCategory(category.name);
                   navigate(
-                    `/jobs?category=${encodeURIComponent(category.name)}`
+                    `/applicant/jobs?category=${encodeURIComponent(category.name)}`
                   );
                 }}
               >
@@ -388,7 +387,7 @@ const Home = () => {
               Get Started Free
             </Link>
             <Link
-              to="/jobs"
+              to="/applicant/jobs"
               className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors"
             >
               Browse Jobs
