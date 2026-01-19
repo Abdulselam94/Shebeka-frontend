@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
+import AnimatedBackground from "../components/common/AnimatedBackground";
 
 const About = () => {
     const team = [
@@ -54,7 +55,8 @@ const About = () => {
     ];
 
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen relative">
+            <AnimatedBackground />
             <Navbar />
 
             {/* Hero Section */}

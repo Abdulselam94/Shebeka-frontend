@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import DarkModeToggle from "../components/common/DarkModeToggle";
+import AnimatedBackground from "../components/common/AnimatedBackground";
 
 const EmployerLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -23,7 +24,8 @@ const EmployerLayout = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex relative">
+            <AnimatedBackground />
             {/* Sidebar */}
             <aside
                 className={`${sidebarOpen ? "w-64" : "w-20"
@@ -53,8 +55,8 @@ const EmployerLayout = () => {
                                 key={item.path}
                                 to={item.path}
                                 className={`flex items-center px-3 py-2 rounded-lg transition-colors ${isActive
-                                        ? "bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-400"
-                                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                    ? "bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-400"
+                                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                                     }`}
                             >
                                 <span className="text-xl">{item.icon}</span>
