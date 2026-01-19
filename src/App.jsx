@@ -24,6 +24,10 @@ import Analytics from "./pages/employer/Analytics";
 import Settings from "./pages/employer/Settings";
 import ApplicationDetail from "./pages/employer/ApplicationDetail";
 import ApplicantLayout from "./layouts/ApplicantLayout";
+import MyApplications from "./pages/applicant/MyApplications";
+import SavedJobs from "./pages/applicant/SavedJobs";
+import ApplicantApplicationDetail from "./pages/applicant/ApplicationDetail";
+import ApplicantSettings from "./pages/applicant/Settings";
 
 function App() {
   return (
@@ -77,6 +81,10 @@ function App() {
         >
           <Route path="dashboard" element={<ApplicantDashboard />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="applications" element={<MyApplications />} />
+          <Route path="applications/:id" element={<ApplicantApplicationDetail />} />
+          <Route path="saved-jobs" element={<SavedJobs />} />
+          <Route path="settings" element={<ApplicantSettings />} />
         </Route>
 
         {/* Employer Routes - Wrapped in Layout */}
